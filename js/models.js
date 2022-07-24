@@ -87,8 +87,8 @@ class StoryList {
       console.log(res);
       //create a Story object from the response
       const returnstory = new Story(res.data.story);
-      //add it to the story list
-      this.stories.push(returnstory);
+      //add it to the front of story list
+      this.stories.unshift(returnstory);
       //and return the new story.
       return returnstory;
     } catch(e) {

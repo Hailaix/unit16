@@ -50,3 +50,32 @@ function putStoriesOnPage() {
 
   $allStoriesList.show();
 }
+
+/**
+ * handler for story form submission, adds a story to the story list
+ * and puts the story on the page. 
+ */
+ async function storySubmit(e){
+  e.preventDefault();
+  //grab the submitted author, title and url
+  const author = $('#story-author').val();
+  const title = $('#story-title').val();
+  const url = $('#story-url').val();
+
+  /**
+   * Sends the info to addStory; side-note, should probably hide the submit nav button
+   * if there is no user logged in, as this will fail without a login token.
+   */
+  const story = await storyList.addStory(currentUser, {author, title, url});
+  //if the story was successfully created:
+  if(story instanceof Story){
+    // hides the submit form and updates the story list displayed.
+    hidePageComponents();
+    putStoriesOnPage();
+  } else{
+    //otherwise, should log the error
+    console.log(story);
+  }
+}
+//adds the listener for the submit
+$storyForm.on("submit", storySubmit);
