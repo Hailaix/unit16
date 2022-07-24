@@ -73,8 +73,28 @@ class StoryList {
    * Returns the new Story instance
    */
 
-  async addStory( /* user, newStory */) {
-    // UNIMPLEMENTED: complete this function!
+  async addStory( user, newStory) {
+    /*  try to send a post request to https://hack-or-snooze-v3.herokuapp.com/stories,
+     * which includes a token and an object with title author url. 
+     * the request should return either an error or a story object.
+     */
+    try {
+      const res = await axios.post( `${BASE_URL}/stories`, {
+        token : user.loginToken,
+        story : newStory
+      });
+      console.log(res);
+      //create a Story object from the response
+      const returnstory = new Story(res.data.story);
+      //add it to the story list
+      this.stories.push(returnstory);
+      //and return the new story.
+      return returnstory;
+    } catch(e) {
+      //no real error handling for now.
+      console.log(e);
+      return e;
+    }
   }
 }
 
