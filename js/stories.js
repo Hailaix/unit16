@@ -117,7 +117,7 @@ $allStoriesList.on("click", ".story-favorite", async function(e) {
   /** we need to find the story in the story list in order to favorite it.
    * first, we find the closest LI, which will have the id of the story's storyId.
    * then, we search the storyList for the story that matches that storyId.
-   * we call favoriteStory and change the innertext of the favorite span
+   * we call favoriteStory and change the innerHTML of the target
    */
   const sId = $(e.target).closest("li").attr("id");
   const foundStory = storyList.stories.find(li => li.storyId === sId);
@@ -127,6 +127,19 @@ $allStoriesList.on("click", ".story-favorite", async function(e) {
     e.target.innerHTML = "&#9733;";
   } 
   else if(message === "Favorite Removed!"){
-    e.target.innerHTML = "\&#9734;";
+    e.target.innerHTML = "&#9734;";
   }
-})
+});
+/** gets the favorites of the currentUser and puts them on the page*/
+function putFavoritesOnPage() {
+  console.log(currentUser.favorites);
+  $allStoriesList.empty();
+
+  // loop through all of our stories and generate HTML for them
+  for (let story of currentUser.favorites) {
+    const $story = generateStoryMarkup(story);
+    $allStoriesList.append($story);
+  }
+
+  $allStoriesList.show();
+}
