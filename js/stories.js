@@ -118,6 +118,17 @@ $allStoriesList.on("click", ".story-favorite", async function (e) {
     e.target.innerHTML = "&#9734;";
   }
 });
+
+/** sets up a listener on the story list for clicks on delete links */
+$allStoriesList.on("click", ".story-delete", async function(e){
+  /** we need to find the storyId of the story, and delete it.
+   *  first, we again find the closest LI to get the stories id.
+   *  then we send the delete call, and simply remove the LI from the ol.
+   */
+  const parent = $(e.target).closest("li");
+  const message = await currentUser.deleteStory(parent.attr("id"));
+  console.log(message);
+});
 /** gets the favorites of the currentUser and puts them on the page*/
 function putFavoritesOnPage() {
   console.log(currentUser.favorites);

@@ -99,35 +99,6 @@ class StoryList {
       return e;
     }
   }
-
-  /** try to send a DELETE request to https://hack-or-snooze-v3.herokuapp.com/stories/storyId,
-   *  user is a User object, storId is a number
-   *  remove the story from the currentUser's ownStories and storyList on successful DELETE
-   *  returns either an error or a string.
-   */
-
-  async deleteStory(user, storyId){
-    try{
-      const res = await axios.delete( `${BASE_URL}/stories/${storyId}`, {
-        token : user.loginToken
-      });
-      //console.log(res);
-      //because the user can only delete stories they have written, this should never fail
-      const sIdx = user.ownStories.findIndex(own => own.storyId === storyId);
-      //remove the story from ownStories
-      user.ownStories.splice(sIdx,1);
-      //find the story in the storyList; this technically could fail
-      const listIdx = this.stories.findIndex(s => s.storyId === storyId);
-      if(listIdx !== -1){ //if the story was in storyList, remove it
-        this.stories.splice(listIdx,1);
-      }
-      const message = res.data.message;
-      return message;
-    } catch(e) {
-      console.error("could not delete story", e);
-      return e;
-    }
-  }
 }
 
 
@@ -284,6 +255,35 @@ class User {
       return res.data.message; //returns the message attached
     } catch(e){
       console.error("could not change favorite status", e);
+    }
+  }
+
+  /** try to send a DELETE request to https://hack-or-snooze-v3.herokuapp.com/stories/storyId,
+   *  storyId is a string
+   *  remove the story from the user's ownStories and storyList on successful DELETE
+   *  returns either an error or a string.
+   */
+
+   async deleteStory(storyId){
+    try{
+      const res = await axios.delete( `${BASE_URL}/stories/${storyId}`, {
+        token : this.loginToken,
+      });
+      //console.log(res);
+      //because the user can only delete stories they have written, this should never fail
+      const sIdx = this.ownStories.findIndex(own => own.storyId === storyId);
+      //remove the story from ownStories
+      this.ownStories.splice(sIdx,1);
+      //find the story in the storyList; this technically could fail
+      const listIdx = storyList.stories.findIndex(s => s.storyId === storyId);
+      if(listIdx !== -1){ //if the story was in storyList, remove it
+        storyList.stories.splice(listIdx,1);
+      }
+      const message = res.data.message;
+      return message;
+    } catch(e) {
+      console.error("could not delete story", e);
+      return e;
     }
   }
 }
