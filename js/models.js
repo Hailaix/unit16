@@ -89,6 +89,8 @@ class StoryList {
       const returnstory = new Story(res.data.story);
       //add it to the front of story list
       this.stories.unshift(returnstory);
+      //add it to the current user's ownStories array
+      user.ownStories.push(returnstory);
       //and return the new story.
       return returnstory;
     } catch(e) {
@@ -212,6 +214,34 @@ class User {
     } catch (err) {
       console.error("loginViaStoredCredentials failed", err);
       return null;
+    }
+  }
+
+  /** Favorite or unfavorite a story 
+   * story is a Story object
+   * checks the user's favorites list and sends either a POST or a DELETE,
+   * depending on if story is in the users favorites list
+   * returns a String on success, undefined otherwise.
+  */
+  async favoriteStory(story) {
+    /**if there is a story in the user's favorites that has the same storyId
+     * then we need to DELETE the favorite from the user, otherwise, we POST it as
+     * a new favorite.
+     */
+    let method = "POST";
+    if(this.favorites.find(favorite => favorite.storyId === story.storyId)){
+      method = "DELETE";
+    }
+    try{
+      const res = await axios({
+        url: `${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+        method,
+        params: { token: this.token }
+      });
+      this.favorites.push(story);
+      return res.data.message; //returns the message attached
+    } catch(e){
+      console.error("could not change favorite status", e);
     }
   }
 }
