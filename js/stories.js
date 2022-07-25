@@ -91,9 +91,6 @@ async function storySubmit(e) {
     // hides the submit form and updates the story list displayed.
     hidePageComponents();
     putStoriesOnPage();
-  } else {
-    //otherwise, should log the error
-    console.log(story);
   }
 }
 /** adds the listener for the submit */
@@ -127,13 +124,13 @@ $allStoriesList.on("click", ".story-delete", async function(e){
    */
   const parent = $(e.target).closest("li");
   const message = await currentUser.deleteStory(parent.attr("id"));
+  parent.remove();
   console.log(message);
 });
+
 /** gets the favorites of the currentUser and puts them on the page*/
 function putFavoritesOnPage() {
-  console.log(currentUser.favorites);
   $allStoriesList.empty();
-
   // loop through all of our stories and generate HTML for them
   for (let story of currentUser.favorites) {
     const $story = generateStoryMarkup(story);

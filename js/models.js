@@ -266,10 +266,14 @@ class User {
 
    async deleteStory(storyId){
     try{
-      const res = await axios.delete( `${BASE_URL}/stories/${storyId}`, {
-        token : this.loginToken,
+      // const res = await axios.delete( `${BASE_URL}/stories/${storyId}`, {
+      //   token : this.loginToken,
+      // });
+      const res = await axios({
+        url: `${BASE_URL}/stories/${storyId}`,
+        method: "DELETE",
+        params: { token: this.loginToken }
       });
-      //console.log(res);
       //because the user can only delete stories they have written, this should never fail
       const sIdx = this.ownStories.findIndex(own => own.storyId === storyId);
       //remove the story from ownStories
