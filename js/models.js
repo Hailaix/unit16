@@ -219,6 +219,8 @@ class User {
 
   /** Favorite or unfavorite a story 
    * story is a Story object
+   * we dont just use the storyId because we want to update the User's favorite list without
+   * having to reload the page.
    * checks the user's favorites list and sends either a POST or a DELETE,
    * depending on if story is in the users favorites list
    * returns a String on success, undefined otherwise.
@@ -229,16 +231,27 @@ class User {
      * a new favorite.
      */
     let method = "POST";
-    if(this.favorites.find(favorite => favorite.storyId === story.storyId)){
+    /** we use findIndex and save it here to splice it from the array if we find it */
+    const favIdx = this.favorites.findIndex(favorite => favorite.storyId === story.storyId);
+    console.log(favIdx);
+    if(favIdx !== -1){
       method = "DELETE";
     }
     try{
       const res = await axios({
         url: `${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
         method,
-        params: { token: this.token }
+        params: { token: this.loginToken }
       });
-      this.favorites.push(story);
+      if(method === "POST"){
+        /** add the story to favorites if we are favoriting it */
+        this.favorites.push(story);
+        console.log(this.favorites);
+      } else {
+        /** otherwise remove it */
+        this.favorites.splice(favIdx,1);
+        console.log(this.favorites);
+      }
       return res.data.message; //returns the message attached
     } catch(e){
       console.error("could not change favorite status", e);
