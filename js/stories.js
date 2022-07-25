@@ -25,36 +25,10 @@ function generateStoryMarkup(story) {
   const hostName = story.getHostName();
   /** if there is a user currently logged in,
    *  it now checks to see if the story is in the current user's favorites
-   *  and adds an appropriate favorite mark.
+   *  and adds an appropriate favorite mark., as well as checks to see
+   *  if the user is the owner of the story, and adds a remove option
    */
-  if(currentUser){
-    if(currentUser.favorites.find(favorite => favorite.storyId === story.storyId)){
-      return $(`
-        <li id="${story.storyId}">
-          <a href="#" class="story-favorite">&#9733;</a>
-          <a href="${story.url}" target="a_blank" class="story-link">
-            ${story.title}
-          </a>
-          <small class="story-hostname">(${hostName})</small>
-          <small class="story-author">by ${story.author}</small>
-          <small class="story-user">posted by ${story.username}</small>
-        </li>
-      `);
-    } else{
-      return $(`
-        <li id="${story.storyId}">
-          <a href="#" class="story-favorite">&#9734;</a>
-          <a href="${story.url}" target="a_blank" class="story-link">
-            ${story.title}
-          </a>
-          <small class="story-hostname">(${hostName})</small>
-          <small class="story-author">by ${story.author}</small>
-          <small class="story-user">posted by ${story.username}</small>
-        </li>
-      `);
-    }
-  }
-  return $(`
+  const storyLI = $(`
       <li id="${story.storyId}">
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -64,6 +38,20 @@ function generateStoryMarkup(story) {
         <small class="story-user">posted by ${story.username}</small>
       </li>
     `);
+    //if there is a user currently logged in,
+  if(currentUser){
+    //if it is a currentUser's story, add a remove option
+    if(currentUser.ownStories.find(own => own.storyId === story.storyId)){
+      storyLI.prepend(`<small><a href="#" class="story-delete">delete</a></small>`);
+    }
+    //check and mark if the story is a favorite
+    if(currentUser.favorites.find(favorite => favorite.storyId === story.storyId)){
+      storyLI.prepend(`<a href="#" class="story-favorite">&#9733;</a>`);
+    } else {
+      storyLI.prepend(`<a href="#" class="story-favorite">&#9734;</a>`);
+    }
+  }
+  return storyLI;
 }
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
@@ -112,7 +100,7 @@ async function storySubmit(e) {
 $storyForm.on("submit", storySubmit);
 
 /** sets up a listener on the story list for clicks on the favorite star links */
-$allStoriesList.on("click", ".story-favorite", async function(e) {
+$allStoriesList.on("click", ".story-favorite", async function (e) {
   e.preventDefault();
   /** we need to find the story in the story list in order to favorite it.
    * first, we find the closest LI, which will have the id of the story's storyId.
@@ -123,10 +111,10 @@ $allStoriesList.on("click", ".story-favorite", async function(e) {
   const foundStory = storyList.stories.find(li => li.storyId === sId);
   const message = await currentUser.favoriteStory(foundStory);
   console.log(message);
-  if(message === "Favorite Added!"){
+  if (message === "Favorite Added!") {
     e.target.innerHTML = "&#9733;";
-  } 
-  else if(message === "Favorite Removed!"){
+  }
+  else if (message === "Favorite Removed!") {
     e.target.innerHTML = "&#9734;";
   }
 });

@@ -77,14 +77,14 @@ class StoryList {
   async addStory( user, newStory) {
     /*  try to send a post request to https://hack-or-snooze-v3.herokuapp.com/stories,
      * which includes a token and an object with title author url. 
-     * the request should return either an error or a story object.
+     * returns either an error or a story object.
      */
     try {
       const res = await axios.post( `${BASE_URL}/stories`, {
         token : user.loginToken,
         story : newStory
       });
-      console.log(res);
+      //console.log(res);
       //create a Story object from the response
       const returnstory = new Story(res.data.story);
       //add it to the front of story list
@@ -95,7 +95,36 @@ class StoryList {
       return returnstory;
     } catch(e) {
       //no real error handling for now.
-      console.log(e);
+      console.error("could not add story", e);
+      return e;
+    }
+  }
+
+  /** try to send a DELETE request to https://hack-or-snooze-v3.herokuapp.com/stories/storyId,
+   *  user is a User object, storId is a number
+   *  remove the story from the currentUser's ownStories and storyList on successful DELETE
+   *  returns either an error or a string.
+   */
+
+  async deleteStory(user, storyId){
+    try{
+      const res = await axios.delete( `${BASE_URL}/stories/${storyId}`, {
+        token : user.loginToken
+      });
+      //console.log(res);
+      //because the user can only delete stories they have written, this should never fail
+      const sIdx = user.ownStories.findIndex(own => own.storyId === storyId);
+      //remove the story from ownStories
+      user.ownStories.splice(sIdx,1);
+      //find the story in the storyList; this technically could fail
+      const listIdx = this.stories.findIndex(s => s.storyId === storyId);
+      if(listIdx !== -1){ //if the story was in storyList, remove it
+        this.stories.splice(listIdx,1);
+      }
+      const message = res.data.message;
+      return message;
+    } catch(e) {
+      console.error("could not delete story", e);
       return e;
     }
   }

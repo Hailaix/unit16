@@ -45,6 +45,7 @@ function updateNavOnLogin() {
   $navUserProfile.text(`${currentUser.username}`).show();
 }
 
+/** click event to show favorites list of currentUser */
 $navFavorites.on("click", function(e){
   console.log('here');
   hidePageComponents();
